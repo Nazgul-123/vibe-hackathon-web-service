@@ -1,0 +1,124 @@
+:root{
+  --bg1: #0A0E27;
+  --bg2: #1A1B3E;
+  --panel: rgba(255,255,255,0.04);
+  --accent: #F4845F;
+  --glass: rgba(255,255,255,0.03);
+}
+
+*{box-sizing:border-box;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+html,body,#app{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#EEE}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:transparent;
+  color:#ddd;
+}
+.topbar button{background:var(--glass);border:0;padding:8px 12px;border-radius:10px;color:#fff}
+
+.main{display:flex;height:calc(100% - 56px);gap:12px;padding:12px}
+.canvas-wrap{flex:1;position:relative;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+#sky{width:100%;height:100%;display:block;background:transparent}
+.overlay{position:absolute;inset:0;pointer-events:none}
+
+.sidebar{width:320px;background:var(--panel);padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:12px}
+.mood-selector label,.task-list label{font-weight:600;margin-bottom:6px;display:block}
+#moodButtons{display:flex;gap:6px}
+.mood-btn{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid transparent}
+.mood-btn.active{outline:2px solid #fff}
+
+.task-list ul{list-style:none;padding:0;margin:0;max-height:40vh;overflow:auto}
+.task-list li{display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px}
+.task-list li.completed{opacity:0.7;text-decoration:line-through}
+
+.actions{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.actions button{padding:10px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),#e8b86d);color:#111;font-weight:600}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center}
+.modal.hidden{display:none}
+.modal-content{background:#0f1228;padding:16px;border-radius:12px;width:320px}
+.modal-content input, .modal-content textarea{width:100%;padding:8px;margin:6px 0;border-radius:8px;background:#0b0d1a;border:1px solid #222;color:#fff}
+
+.small-note{font-size:12px;color:#bbb}
+
+button {
+  background-color: #6b5bff;   
+  color: white;
+  border: none;
+  border-radius: 12px;          
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #7d6fff;      
+  transform: scale(1.03);
+}
+
+button:active {
+  background-color: #5a4de0;
+  transform: scale(0.97);
+}
+
+button:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  background-color: #12122b;
+  color: white;
+  border: 1px solid #2a2a4a;
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: none;
+}
+
+.task-modal {
+  background-color: #0e0e2a;
+  color: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 0 20px rgba(100, 80, 255, 0.2);
+}
+
+#finish-week-btn.disabled {
+  background-color: #555 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+#finishWeekBtn.disabled {
+  background-color: #555 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.disabled-checkbox {
+  accent-color: gray; 
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+#taskList li {
+  transition: color 0.3s ease;
+}
+#taskList li.disabled-task {
+  color: #888;
+}
+
+/* canvas star glow helpers (canvas drawing handles the rest) */
+
+@media (max-width:900px){
+  .sidebar{position:fixed;bottom:0;left:0;right:0;width:auto;height:40vh;border-radius:12px 12px 0 0}
+  .main{padding-bottom:60px}
+}

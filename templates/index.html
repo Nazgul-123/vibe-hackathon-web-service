@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Constellation Diary</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button id="prevWeek">←</button>
+      <div id="weekLabel">2025-W43</div>
+      <button id="nextWeek">→</button>
+
+      <div class="right-controls">
+        <button id="galaxyBtn">Галактика</button>
+        <div id="streak">🔥 <span id="streakCount">0</span></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="canvas-wrap">
+        <canvas id="sky"></canvas>
+        <div id="canvasOverlay" class="overlay"></div>
+      </div>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="mood-selector">
+          <label>Настроение недели</label>
+          <div id="moodButtons"></div>
+        </div>
+
+        <div class="task-list">
+          <label>Задачи</label>
+          <ul id="taskList"></ul>
+        </div>
+
+        <div class="actions">
+          <div>Выполнено: <span id="doneCount">0</span>/<span id="totalCount">0</span></div>
+          <button id="finishWeekBtn">Завершить неделю</button>
+        </div>
+      </aside>
+    </main>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <h3 id="modalTitle">Задача</h3>
+        <input id="taskTitleInput" placeholder="Название" />
+        <textarea id="taskDescInput" placeholder="Описание"></textarea>
+        <label><input type="checkbox" id="taskCompletedInput"/> Выполнено</label>
+        <div class="modal-actions">
+          <button id="saveTaskBtn">Сохранить</button>
+          <button id="deleteTaskBtn">Удалить</button>
+          <button id="closeModalBtn">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/animations.js"></script>
+  <script src="/js/canvas.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
