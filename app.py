@@ -91,6 +91,11 @@ def create_star(week_id):
         "completed": bool(payload.get("completed", False)),
         "createdAt": payload.get("createdAt", _now_iso())
     }
+    
+    # Добавляем completedAt если задача создается завершенной
+    if star["completed"]:
+        star["completedAt"] = payload.get("completedAt", _now_iso())
+    
     week["stars"].append(star)
     save_data(data)
     return jsonify(star), 201
@@ -111,6 +116,16 @@ def update_star(week_id, star_id):
     for key in ["x", "y", "title", "description", "completed"]:
         if key in payload:
             star[key] = payload[key]
+    
+    # Обрабатываем completedAt
+    if "completed" in payload:
+        if payload["completed"] and "completedAt" not in star:
+            star["completedAt"] = payload.get("completedAt", _now_iso())
+        elif not payload["completed"] and "completedAt" in star:
+            del star["completedAt"]
+    elif "completedAt" in payload:
+        star["completedAt"] = payload["completedAt"]
+    
     save_data(data)
     return jsonify(star)
 
@@ -190,6 +205,18 @@ def finish_week(week_id):
 
     save_data(data)
     return jsonify({"ok": True, "percent": percent, "stats": stats})
+
+@app.route("/api/week/<week_id>/connections", methods=["PUT"])
+def update_connections(week_id):
+    payload = request.json or {}
+    data = load_data()
+    ensure_week(data, week_id)
+    week = data["weeks"][week_id]
+    
+    week["connections"] = payload.get("connections", [])
+    save_data(data)
+    
+    return jsonify(week["connections"])
 
 @app.route("/api/galaxy/<month>", methods=["GET"])
 def get_galaxy(month):

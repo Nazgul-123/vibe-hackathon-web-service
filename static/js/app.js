@@ -51,7 +51,11 @@ async function loadWeek(weekId){
     $id("weekLabel").innerText = weekId;
     const wk = await fetchWeek(weekId);
     currentWeekData = wk;
-    CanvasApp.setData({stars: wk.stars, connections: wk.connections, mood: wk.mood});
+    CanvasApp.setData({
+      stars: wk.stars, 
+      connections: wk.connections, 
+      mood: wk.mood
+    });
     renderTaskList();
     updateCounts();
     
@@ -62,6 +66,8 @@ async function loadWeek(weekId){
     } else {
       enableEditing();
     }
+    
+    updateConnectionsForCompletedStars();
   } catch (e) {
     console.error(e);
   }
@@ -167,10 +173,10 @@ function renderTaskList(){
     cb.addEventListener("change", async ()=>{
       s.completed = cb.checked;
       await saveStar(s);
-      // Обновляем CanvasApp после изменения состояния задачи
       CanvasApp.setData({stars: currentWeekData.stars, connections: currentWeekData.connections, mood: currentWeekData.mood});
       renderTaskList();
       updateCounts();
+      updateConnectionsForCompletedStars();
     });
     const span = document.createElement("span");
     span.innerText = s.title;
@@ -242,11 +248,21 @@ async function saveModalTask(){
   if (!star) return;
   star.title = $id("taskTitleInput").value;
   star.description = $id("taskDescInput").value;
+  const wasCompleted = star.completed;
   star.completed = $id("taskCompletedInput").checked;
+  
+  if (star.completed && !wasCompleted) {
+    star.completedAt = new Date().toISOString();
+  } else if (!star.completed && wasCompleted) {
+    delete star.completedAt;
+  }
+  
   await saveStar(star);
   CanvasApp.setData({stars: currentWeekData.stars, connections: currentWeekData.connections, mood: currentWeekData.mood});
   renderTaskList();
   updateCounts();
+  
+  updateConnectionsForCompletedStars();
   
   if (CanvasApp.stopDragging) {
     CanvasApp.stopDragging();
@@ -270,6 +286,15 @@ async function deleteModalTask(){
 }
 
 async function saveStar(star){
+  // Если задача завершается, добавляем время завершения
+  if (star.completed && !star.completedAt) {
+    star.completedAt = new Date().toISOString();
+  }
+  // Если задача снимается с завершения, убираем время завершения
+  if (!star.completed && star.completedAt) {
+    delete star.completedAt;
+  }
+
   const res = await fetch(`${API_ROOT}/week/${currentWeek}/star/${star.id}`, {
     method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(star)
   });
@@ -280,6 +305,8 @@ async function saveStar(star){
     const idx = currentWeekData.stars.findIndex(s=>s.id===updated.id);
     if (idx>=0) currentWeekData.stars[idx] = updated;
     CanvasApp.setData({stars: currentWeekData.stars, connections: currentWeekData.connections, mood: currentWeekData.mood});
+    
+    updateConnectionsForCompletedStars();
   }
 }
 
@@ -387,6 +414,47 @@ function refreshCanvas() {
       connections: currentWeekData.connections, 
       mood: currentWeekData.mood
     });
+  }
+}
+
+function updateConnectionsForCompletedStars() {
+  if (!currentWeekData) return;
+
+  // Получаем все завершенные звезды в порядке их завершения
+  const completedStars = currentWeekData.stars
+    .filter(star => star.completed)
+    .sort((a, b) => new Date(a.completedAt || a.createdAt) - new Date(b.completedAt || b.createdAt));
+
+  // Очищаем существующие соединения (или можно сохранить ручные соединения)
+  // Пока очищаем все для простоты
+  currentWeekData.connections = [];
+
+  // Создаем соединения между последовательно завершенными задачами
+  for (let i = 0; i < completedStars.length - 1; i++) {
+    currentWeekData.connections.push({
+      from: completedStars[i].id,
+      to: completedStars[i + 1].id
+    });
+  }
+
+  CanvasApp.setData({
+    stars: currentWeekData.stars,
+    connections: currentWeekData.connections,
+    mood: currentWeekData.mood
+  });
+
+  saveConnections();
+}
+
+async function saveConnections() {
+  try {
+    await fetch(`${API_ROOT}/week/${currentWeek}/connections`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ connections: currentWeekData.connections })
+    });
+  } catch (e) {
+    console.error("Ошибка сохранения соединений:", e);
   }
 }
 
